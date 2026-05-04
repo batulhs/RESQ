@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RESQ - Women's Safety Assistant</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .chat-container { width:100%; max-width:500px; height:650px; background:rgba(255,255,255,0.95); backdrop-filter:blur(10px); border-radius:24px; display:flex; flex-direction:column; box-shadow:0 20px 40px rgba(0,0,0,0.1); overflow:hidden; }
+  .chat-header { background: linear-gradient(135deg, #8B5FBF 0%, #6366F1 100%); color:white; padding:20px; text-align:center; }
+  .chat-header h1 { font-size:1.5rem; font-weight:600; margin-bottom:4px; }
+  .chat-header p { font-size:0.9rem; opacity:0.9; font-weight:300; }
+  .chat-messages { flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:16px; }
+  .message { max-width:85%; padding:12px 16px; border-radius:18px; font-size:0.95rem; line-height:1.5; animation:fadeIn 0.3s ease-out; word-break:break-word; }
+  .message.bot { background:#F3F4F6; color:#374151; align-self:flex-start; border-bottom-left-radius:6px; }
+  .message.user { background: linear-gradient(135deg, #8B5FBF 0%, #6366F1 100%); color:white; align-self:flex-end; border-bottom-right-radius:6px; }
+  .message.emergency { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); color:white; align-self:flex-start; border:2px solid #FECACA; animation:emergencyPulse 1s infinite; }
+  .message p { margin:6px 0; }
+  .message ul { margin:8px 0 0 16px; padding:0; list-style-position: inside; }
+  .message ul li { margin-bottom:6px; line-height:1.5; }
+  .typing-indicator { display:none; background:#F3F4F6; padding:12px 16px; border-radius:18px; border-bottom-left-radius:6px; margin-top:4px; align-self:flex-start; }
+  .typing-dots { display:flex; gap:4px; }
+  .typing-dots span { width:6px; height:6px; background:#9CA3AF; border-radius:50%; animation:typing 1.4s infinite; }
+  .typing-dots span:nth-child(2) { animation-delay:0.2s; } 
+  .typing-dots span:nth-child(3) { animation-delay:0.4s; }
+  .quick-actions { padding:0 20px 10px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .quick-btn { background:rgba(139,95,191,0.1); color:#8B5FBF; border:1px solid rgba(139,95,191,0.3); padding:8px 14px; border-radius:20px; font-size:0.85rem; cursor:pointer; transition:all .2s; font-weight:500; }
+  .chat-input { padding:20px; border-top:1px solid rgba(0,0,0,0.1); background:white; }
+  .input-container { display:flex; gap:12px; align-items:flex-end; }
+  .input-wrapper { flex:1; position:relative; }
+  textarea { width:100%; border:2px solid #E5E7EB; border-radius:20px; padding:12px 16px; font-size:0.95rem; resize:none; outline:none; transition:border-color .2s; min-height:44px; max-height:100px; }
+  textarea:focus { border-color:#8B5FBF; }
+  .send-btn, .panic-btn { padding:12px; border:none; border-radius:50%; cursor:pointer; transition:all .2s; font-size:1.1rem; width:44px; height:44px; display:flex; align-items:center; justify-content:center; }
+  .send-btn { background: linear-gradient(135deg, #8B5FBF 0%, #6366F1 100%); color:white; }
+  .panic-btn { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); color:white; margin-left:8px; animation:pulse 2s infinite; }
+  .panic-btn.active { animation:emergencyPulse .5s infinite; transform:scale(1.1); }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+  @keyframes typing { 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-10px);} }
+  @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
+  @keyframes emergencyPulse { 0%,100%{ transform:scale(1); box-shadow:0 0 0 0 rgba(239,68,68,0.7);} 50%{ transform:scale(1.05); box-shadow:0 0 0 10px rgba(239,68,68,0);} }
+  .chat-messages::-webkit-scrollbar { width:6px; } 
+  .chat-messages::-webkit-scrollbar-track{background:transparent;} 
+  .chat-messages::-webkit-scrollbar-thumb{ background:rgba(139,95,191,0.5); border-radius:3px; }
+</style>
+</head>
+<body>
+<div class="chat-container">
+  <div class="chat-header">
+    <h1>🛡️ RESQ Assistant</h1>
+    <p>Your safety companion - here to help 24/7</p>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div class="message bot">
+      <p>Hello! I'm RESQ, your personal safety assistant. I'm here to provide support, resources, and help whenever you need it. How can I assist you today?</p>
+    </div>
+  </div>
+
+  <div class="typing-indicator" id="typingIndicator">
+    <div class="typing-dots"><span></span><span></span><span></span></div>
+  </div>
+
+  <div class="quick-actions">
+    <button class="quick-btn" onclick="sendQuickMessage('legal')">⚖️ Legal Help</button>
+    <button class="quick-btn" onclick="sendQuickMessage('mental')">💚 Mental Health</button>
+    <button class="quick-btn" onclick="sendQuickMessage('safe')">📍 Safe Places</button>
+    <button class="quick-btn" onclick="sendQuickMessage('helpline')">📞 Helplines</button>
+  </div>
+
+  <div class="chat-input">
+    <div class="input-container">
+      <div class="input-wrapper">
+        <textarea id="messageInput" placeholder="Type your message here..." rows="1" onkeydown="handleKeyPress(event)" oninput="adjustTextareaHeight(this)"></textarea>
+      </div>
+      <button class="send-btn" onclick="sendMessage()" id="sendBtn">➤</button>
+      <button class="panic-btn" onclick="triggerPanic()" id="panicBtn" title="Emergency Panic Button">🚨</button>
+    </div>
+  </div>
+</div>
+
+<audio id="alarmSound" preload="auto">
+  <source src="../static/alarm.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const API_URL = "https://45844ed2eb5e.ngrok-free.app/chat"; 
+let isAlarmPlaying = false;
+
+// Add message with formatting for numbers and links
+function addMessage(text, isUser=false, isEmergency=false){
+    const messagesContainer = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser?'user':'bot'}${isEmergency?' emergency':''}`;
+
+    const formattedText = text
+        .split('\n')
+        .map(line=>{
+            line = line.trim();
+            if(line.match(/^\d+\./)){ 
+                const parts = line.split(/: /);
+                const title = parts[0];
+                const content = parts[1] || '';
+                const contentWithLinks = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+                return `<li><strong>${title}</strong>: ${contentWithLinks}</li>`;
+            } else {
+                return `<p>${line.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')}</p>`;
+            }
+        }).join('');
+
+    const startsWithNumber = text.trim().startsWith('1.');
+    messageDiv.innerHTML = startsWithNumber ? `<ul>${formattedText}</ul>` : formattedText;
+
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Typing indicator
+function showTyping(){
+    const indicator = document.getElementById('typingIndicator');
+    indicator.style.display = 'flex';
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.appendChild(indicator); // move below last message
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+function hideTyping(){ document.getElementById('typingIndicator').style.display='none'; }
+
+async function sendMessage(){
+    const input = document.getElementById('messageInput');
+    const msg = input.value.trim();
+    if(!msg) return;
+    addMessage(msg,true);
+    input.value=''; adjustTextareaHeight(input);
+    showTyping();
+    try{
+        const res = await fetch(API_URL, {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({message: msg})
+        });
+        const data = await res.json();
+        hideTyping();
+        const reply = (data && (data.response||data.reply)) ? (data.response||data.reply) : "Sorry, I couldn't generate a reply.";
+        addMessage(reply,false);
+    } catch(e){
+        hideTyping();
+        console.error(e);
+        addMessage("⚠️ Could not connect to server. Please check your backend.", false, true);
+    }
+}
+
+function sendQuickMessage(type){
+    const quickMessages = {
+        legal: "I need legal help and information about my rights",
+        mental: "I'm feeling stressed and need mental health support",
+        safe: "I need to find safe places near me",
+        helpline: "I need emergency contact numbers and helplines"
+    };
+    const msg = quickMessages[type] || type;
+    document.getElementById('messageInput').value = msg;
+    sendMessage();
+}
+
+// Panic / Alarm
+function playAlarm(){ const alarm = document.getElementById('alarmSound'); if(!isAlarmPlaying){ alarm.currentTime = 0; alarm.play().catch(err => console.error(err)); isAlarmPlaying = true; showStopButton(); } }
+function stopAlarm(){ const alarm = document.getElementById('alarmSound'); alarm.pause(); alarm.currentTime=0; isAlarmPlaying=false; hideStopButton(); document.getElementById('panicBtn').classList.remove('active'); }
+function showStopButton(){ let btn=document.getElementById('stopAlarmBtn'); if(!btn){ btn=document.createElement('button'); btn.id='stopAlarmBtn'; btn.textContent='Stop Alarm'; Object.assign(btn.style,{position:'fixed',top:'20px',right:'20px',background:'#EF4444',color:'white',padding:'12px 20px',border:'none',borderRadius:'12px',zIndex:10000,cursor:'pointer',fontWeight:'600'}); btn.onclick=stopAlarm; document.body.appendChild(btn); } btn.style.display='block'; }
+function hideStopButton(){ const btn=document.getElementById('stopAlarmBtn'); if(btn) btn.style.display='none'; }
+function triggerPanic(){ addMessage("🚨 EMERGENCY HELP NEEDED 🚨", true); document.getElementById('panicBtn').classList.add('active'); playAlarm(); showTyping(); setTimeout(()=>{ hideTyping(); addMessage("🚨 PANIC ALERT ACTIVATED 🚨\nCall 112 immediately if you are in danger. Move to a safe place.", false, true); },500); }
+
+// Input helpers
+function handleKeyPress(event){ if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); sendMessage(); } }
+function adjustTextareaHeight(textarea){ textarea.style.height='auto'; textarea.style.height=Math.min(textarea.scrollHeight,100)+'px'; }
+
+document.getElementById('messageInput').focus();
+</script>
+</body>
+</html>
