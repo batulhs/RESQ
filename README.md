@@ -1,98 +1,124 @@
 # RESQ 🤝
 
-## Women’s Safety & Support Chatbot
+**Women's Safety & Support Chatbot**
 
-RESQ is an AI-powered safety and support system designed to assist users in emergency situations, provide mental health support, and offer access to legal and helpline resources. It includes features like AI chatbot assistance, panic alert system, geolocation-based safety suggestions, and a calming user interface.
+RESQ is a Flask-based AI chatbot that provides real-time conversational support, emotional assistance, and safety-related guidance through a simple web interface. It is powered by the [Hugging Face Zephyr-7B-Beta](https://huggingface.co/HuggingFaceH4/zephyr-7b-beta) model via the Hugging Face Inference API.
 
 ---
 
 ## 📌 Features
 
-- 🤖 AI-powered chatbot for real-time assistance  
-- 🚨 Panic button for emergency alerts  
-- 📍 Geolocation-based safe place suggestions  
-- 📞 Quick access to helpline numbers  
-- 🎧 Alarm/sound feature for emergencies  
-- 💬 Mental health and emotional support responses  
-- 🔐 Secure login system  
-- 🎨 Calm and user-friendly interface  
+- 🤖 AI-powered chatbot (Zephyr-7B-Beta via Hugging Face Inference API)
+- 🚨 Panic button for emergency alerts
+- 📍 Geolocation-based safe place suggestions
+- 📞 Quick access to helpline numbers
+- 🎧 Alarm/sound feature for emergencies
+- 💬 Mental health and emotional support responses
+- 🔐 Secure login system
+- 🎨 Calm and user-friendly interface
 
 ---
 
 ## 🛠️ Tech Stack
 
-- Frontend: HTML, CSS, JavaScript  
-- Backend: Python (Flask / FastAPI)  
-- AI Integration: OpenAI API  
-- Maps Integration: Google Maps API  
-- Data Handling: JSON, REST APIs  
+| Layer | Technology |
+|---|---|
+| Frontend | HTML, CSS, JavaScript |
+| Backend | Python, Flask |
+| AI Model | HuggingFaceH4/zephyr-7b-beta |
+| AI Inference | Hugging Face Inference API |
+| Data | JSON, SQLite (`resq.db`) |
 
 ---
 
 ## 📂 Project Structure
 
+```
 RESQ/
-│── static/              # CSS, JS, images  
-│── templates/           # HTML files  
-│── app.py               # Main backend file  
-│── open.env             # Environment variables (NOT pushed to GitHub)  
-│── requirements.txt     # Dependencies  
-│── .gitignore           # Ignored files  
-│── README.md            # Project documentation  
+├── static/          # CSS, JS, images
+├── templates/       # HTML templates
+├── flask_session/   # Server-side session storage
+├── app.py           # Main Flask application
+├── resq.db          # SQLite database
+├── users.json       # User data (local)
+├── .gitignore       # Ignored files
+└── README.md        # Project documentation
+```
 
 ---
 
 ## ⚙️ Setup Instructions
 
 ### 1. Clone the repository
-git clone https://github.com/batulhs/RESQ.git  
-cd RESQ  
 
----
+```bash
+git clone https://github.com/batulhs/RESQ.git
+cd RESQ
+```
 
-### 2. Create virtual environment
-python -m venv venv  
-venv\Scripts\activate   # Windows  
+### 2. Create and activate a virtual environment
 
----
+```bash
+# macOS / Linux
+python -m venv venv
+source venv/bin/activate
+
+# Windows
+python -m venv venv
+venv\Scripts\activate
+```
 
 ### 3. Install dependencies
-pip install -r requirements.txt  
 
----
+```bash
+pip install -r requirements.txt
+```
 
-### 4. Add environment variables
-Create a file named `.env` or `open.env` and add:
+### 4. Set your Hugging Face API token
 
-OPENAI_API_KEY=your_api_key_here  
+Create a `.env` file in the project root:
 
----
+```
+HF_TOKEN=your_huggingface_token_here
+```
+
+> Get your token at [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens).  
+> The model used is `HuggingFaceH4/zephyr-7b-beta`.
 
 ### 5. Run the application
-python app.py  
+
+```bash
+python app.py
+```
+
+Open your browser at `http://127.0.0.1:5000`.
 
 ---
 
-## 🔐 Security Note
+## 🔌 API Endpoints
 
-- API keys and sensitive data are stored in environment files.
-- These files are ignored using `.gitignore`.
-- Never upload secrets to GitHub.
+| Method | Route | Description |
+|---|---|---|
+| GET | `/` | Renders the main chat interface |
+| POST | `/chat` | Accepts `{ "message": "..." }` JSON, returns `{ "response": "..." }` |
+
+---
+
+## 🔐 Security Notes
+
+- API tokens are loaded from environment variables via `os.getenv("HF_TOKEN")`.
+- Sensitive files (`.env`, session data) are excluded via `.gitignore`.
+- **Never commit secrets or API keys to version control.**
 
 ---
 
 ## 🎯 Future Improvements
 
-- Mobile app version  
-- SMS-based emergency alerts  
-- Live location sharing with trusted contacts  
-- Multilingual support  
-- Advanced AI safety classification  
-
----
-
-## 👩‍💻 Author
-
+- [ ] Mobile app version
+- [ ] SMS-based emergency alerts
+- [ ] Live location sharing with trusted contacts
+- [ ] Multilingual support
+- [ ] Advanced AI safety classification
 
 ---
 
