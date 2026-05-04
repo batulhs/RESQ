@@ -93,9 +93,6 @@ python app.py
 
 ## 👩‍💻 Author
 
-Batul S  
-BMS College of Engineering  
-MLOps / AI Project  
 
 ---
 
