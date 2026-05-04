@@ -114,11 +114,11 @@ Open your browser at `http://127.0.0.1:5000`.
 
 ## 🎯 Future Improvements
 
-- [ ] Mobile app version
-- [ ] SMS-based emergency alerts
-- [ ] Live location sharing with trusted contacts
-- [ ] Multilingual support
-- [ ] Advanced AI safety classification
+-  Mobile app version
+-  SMS-based emergency alerts
+-  Live location sharing with trusted contacts
+-  Multilingual support
+-  Advanced AI safety classification
 
 ---
 
