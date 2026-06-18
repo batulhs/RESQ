@@ -8,14 +8,14 @@ RESQ is a Flask-based AI chatbot that provides real-time conversational support,
 
 ## 📌 Features
 
-- 🤖 AI-powered chatbot (Zephyr-7B-Beta via Hugging Face Inference API)
-- 🚨 Panic button for emergency alerts
-- 📍 Geolocation-based safe place suggestions
-- 📞 Quick access to helpline numbers
-- 🎧 Alarm/sound feature for emergencies
-- 💬 Mental health and emotional support responses
-- 🔐 Secure login system
-- 🎨 Calm and user-friendly interface
+-  AI-powered chatbot (Zephyr-7B-Beta via Hugging Face Inference API)
+-  Panic button for emergency alerts
+-  Geolocation-based safe place suggestions
+-  Quick access to helpline numbers
+-  Alarm/sound feature for emergencies
+-  Mental health and emotional support responses
+-  Secure login system
+-  Calm and user-friendly interface
 
 ---
 
