@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>RESQ - Women's Safety Assistant</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
   body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
@@ -84,32 +85,20 @@
 </audio>
 
 <script>
-const API_URL = "https://45844ed2eb5e.ngrok-free.app/chat"; 
+const API_URL = "https://impedible-nonvituperatively-karon.ngrok-free.dev/chat";
 let isAlarmPlaying = false;
 
-// Add message with formatting for numbers and links
+// Render bot replies as Markdown; show user text as-is
 function addMessage(text, isUser=false, isEmergency=false){
     const messagesContainer = document.getElementById('chatMessages');
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${isUser?'user':'bot'}${isEmergency?' emergency':''}`;
 
-    const formattedText = text
-        .split('\n')
-        .map(line=>{
-            line = line.trim();
-            if(line.match(/^\d+\./)){ 
-                const parts = line.split(/: /);
-                const title = parts[0];
-                const content = parts[1] || '';
-                const contentWithLinks = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-                return `<li><strong>${title}</strong>: ${contentWithLinks}</li>`;
-            } else {
-                return `<p>${line.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')}</p>`;
-            }
-        }).join('');
-
-    const startsWithNumber = text.trim().startsWith('1.');
-    messageDiv.innerHTML = startsWithNumber ? `<ul>${formattedText}</ul>` : formattedText;
+    if (isUser) {
+        messageDiv.textContent = text;
+    } else {
+        messageDiv.innerHTML = marked.parse(text);
+    }
 
     messagesContainer.appendChild(messageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
