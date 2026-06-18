@@ -1,127 +1,115 @@
-# RESQ 🤝
+<div align="center">
 
-**Women's Safety & Support Chatbot**
+# 🛡️ RESQ
 
-RESQ is a Flask-based AI chatbot that provides real-time conversational support, emotional assistance, and safety-related guidance through a simple web interface. It is powered by the [Hugging Face Zephyr-7B-Beta](https://huggingface.co/HuggingFaceH4/zephyr-7b-beta) model via the Hugging Face Inference API.
+### *Women's Safety & Support Chatbot*
 
----
+A calm, supportive AI companion for safety guidance, emotional support, and quick access to help - powered by a locally-run large language model.
 
-## 📌 Features
+![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![Transformers](https://img.shields.io/badge/🤗_Transformers-FFD21E)
+![Model](https://img.shields.io/badge/Zephyr--7B--Beta-4--bit-8B5FBF)
+![License](https://img.shields.io/badge/License-Academic-lightgrey)
 
--  AI-powered chatbot (Zephyr-7B-Beta via Hugging Face Inference API)
--  Panic button for emergency alerts
--  Geolocation-based safe place suggestions
--  Quick access to helpline numbers
--  Alarm/sound feature for emergencies
--  Mental health and emotional support responses
--  Secure login system
--  Calm and user-friendly interface
+</div>
 
 ---
 
-## 🛠️ Tech Stack
+## ✨ Overview
 
-| Layer | Technology |
-|---|---|
-| Frontend | HTML, CSS, JavaScript |
-| Backend | Python, Flask |
-| AI Model | HuggingFaceH4/zephyr-7b-beta |
-| AI Inference | Hugging Face Inference API |
-| Data | JSON, SQLite (`resq.db`) |
+**RESQ** provides conversational support, emotional assistance, and safety guidance through a clean web interface. The backend runs the [**Zephyr-7B-Beta**](https://huggingface.co/HuggingFaceH4/zephyr-7b-beta) large language model **locally in 4-bit quantization** on a GPU (via Google Colab), served through a **FastAPI** endpoint and exposed with **ngrok**.
 
 ---
 
-## 📂 Project Structure
+## 🌸 Features
 
-```
-RESQ/
-├── static/          # CSS, JS, images
-├── templates/       # HTML templates
-├── flask_session/   # Server-side session storage
-├── app.py           # Main Flask application
-├── resq.db          # SQLite database
-├── users.json       # User data (local)
-├── .gitignore       # Ignored files
-└── README.md        # Project documentation
-```
+-  **AI chatbot** powered by Zephyr-7B-Beta, run locally with 4-bit (NF4) quantization
+-  **Multi-turn memory** with a sliding conversation window
+-  **Emergency panic button** - plays an audible alarm (Web Audio API) + on-screen safety guidance (call 112)
+-  **Quick-action prompts** for legal help, mental health, safe places, and helplines
+-  **Markdown-rendered replies** for clean, readable, formatted responses
+-  Calm, responsive chat interface
 
 ---
 
-## ⚙️ Setup Instructions
+## 🧩 Tech Stack
 
-### 1. Clone the repository
+| Layer        | Technology                                      |
+| ------------ | ----------------------------------------------- |
+|  Frontend  | HTML, CSS, JavaScript (Markdown via `marked`)   |
+|  Backend   | Python, FastAPI, Uvicorn                        |
+|  AI Model  | `HuggingFaceH4/zephyr-7b-beta`                  |
+|  Inference | Transformers + bitsandbytes (4-bit, local GPU)  |
+|  Tunneling | ngrok                                           |
+
+---
+
+## 🏗️ How It Works
+
+The model is too large for a typical laptop, so the backend runs in **Google Colab** on a GPU:
+1. Colab loads Zephyr-7B-Beta in 4-bit quantization and serves it via a FastAPI `/chat` endpoint.
+2. ngrok exposes that endpoint at a stable public URL.
+3. The frontend sends messages to that URL and renders the replies.
+
+---
+
+## 🚀 Setup
+
+### 1️⃣ Backend (Google Colab)
+
+Open the backend code in a Colab notebook with a **GPU runtime**
+*(Runtime → Change runtime type → T4 GPU)*, then install dependencies:
 
 ```bash
-git clone https://github.com/batulhs/RESQ.git
-cd RESQ
+pip install -q -U transformers accelerate bitsandbytes pyngrok hf_transfer fastapi uvicorn nest_asyncio
 ```
 
-### 2. Create and activate a virtual environment
+> ⚠️ **Restart the runtime after installing** - this is required for `bitsandbytes` to load correctly.
 
-```bash
-# macOS / Linux
-python -m venv venv
-source venv/bin/activate
+Then:
 
-# Windows
-python -m venv venv
-venv\Scripts\activate
-```
+-  Add your **ngrok auth token** to Colab **Secrets** as `NGROK_AUTH` *(get one at [ngrok.com](https://ngrok.com))*
+-  *(Optional)* set a **static ngrok domain** in `NGROK_DOMAIN` so the public URL never changes
+-  Run the backend cell - it prints a public URL
 
-### 3. Install dependencies
+### 2️⃣ Frontend
 
-```bash
-pip install -r requirements.txt
-```
+- In `templates/index.html`, set `API_URL` to your ngrok URL (with `/chat` at the end)
+- Open the HTML file in a browser and start chatting 💜
 
-### 4. Set your Hugging Face API token
-
-Create a `.env` file in the project root:
-
-```
-HF_TOKEN=your_huggingface_token_here
-```
-
-> Get your token at [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens).  
-> The model used is `HuggingFaceH4/zephyr-7b-beta`.
-
-### 5. Run the application
-
-```bash
-python app.py
-```
-
-Open your browser at `http://127.0.0.1:5000`.
+> 💡 The Colab cell must stay running while you use the chatbot.
 
 ---
 
-## 🔌 API Endpoints
+## 🔌 API
 
-| Method | Route | Description |
-|---|---|---|
-| GET | `/` | Renders the main chat interface |
-| POST | `/chat` | Accepts `{ "message": "..." }` JSON, returns `{ "response": "..." }` |
+| Method | Route   | Description                                                     |
+| ------ | ------- | -------------------------------------------------------------- |
+| `GET`  | `/`     | Health check                                                   |
+| `POST` | `/chat` | Accepts `{ "message": "..." }`, returns `{ "response": "..." }` |
 
 ---
 
 ## 🔐 Security Notes
 
-- API tokens are loaded from environment variables via `os.getenv("HF_TOKEN")`.
-- Sensitive files (`.env`, session data) are excluded via `.gitignore`.
-- **Never commit secrets or API keys to version control.**
+-  The ngrok token is read from Colab **Secrets**, never hardcoded
+-  Databases, session files, and user data are **never** committed *(see `.gitignore`)*
+-  **Never commit secrets or API keys to version control**
 
 ---
 
-## 🎯 Future Improvements
+## 🌱 Limitations & Future Work
 
--  Mobile app version
--  SMS-based emergency alerts
--  Live location sharing with trusted contacts
--  Multilingual support
--  Advanced AI safety classification
+- Runs in Colab - the session must stay alive *(not a persistent deployment)*
+- Conversation history is shared globally, not per-user
+- **Planned:** persistent hosting · per-session conversations · SMS/location alerts · multilingual support
 
 ---
 
-## 📜 License
+<div align="center">
 
-This project is for academic and learning purposes only.
+
+📚 *For academic and learning purposes only*
+
+</div>
