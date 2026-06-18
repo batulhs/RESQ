@@ -1,2 +1,4 @@
 open.env
 .env
+users.json
+resq.db
