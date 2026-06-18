@@ -1,0 +1,8 @@
+transformers
+accelerate
+bitsandbytes
+pyngrok
+hf_transfer
+fastapi
+uvicorn
+nest_asyncio
